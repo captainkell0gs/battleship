@@ -90,4 +90,33 @@ describe("gameboard", () => {
         expect(result2).toBe("invalid");
         expect(ship.hits).toBe(1);
     })
+
+    test("reports true when all ships are sunk", () => {
+        const ship1 = new Ship(1)
+        const ship2 = new Ship(1)
+
+        gameboard.placeShip(ship1, 0, 0, "horizontal")
+        gameboard.placeShip(ship2, 1, 0, "horizontal")
+
+        gameboard.receiveAttack(0, 0)
+        gameboard.receiveAttack(1, 0)
+
+        expect(gameboard.allShipsSunk()).toBe(true);
+    })
+
+    test("reports false when not all ships are sunk", () => {
+        const ship1 = new Ship(1)
+        const ship2 = new Ship(1)
+
+        gameboard.placeShip(ship1, 0, 0, "horizontal")
+        gameboard.placeShip(ship2, 1, 0, "horizontal")
+
+        gameboard.receiveAttack(0, 0)
+
+        expect(gameboard.allShipsSunk()).toBe(false);
+    })
+
+    test("returns false when no ships have been placed", () => {
+        expect(gameboard.allShipsSunk()).toBe(false);
+    })
 } )
