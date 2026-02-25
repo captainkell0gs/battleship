@@ -1,3 +1,5 @@
+import Ship from "./ship";
+
 export default class Gameboard {
     constructor() {
         this.board = Array(10).fill(null).map(() => Array(10).fill(null));
@@ -37,5 +39,26 @@ export default class Gameboard {
 
         this.ships.push(ship);
         return true;
+    }
+
+    receiveAttack(x, y) {
+        if (x < 0 || x > 9 || y < 0 || y > 9) return "invalid";
+
+        const key = `${x}-${y}`;
+    
+        if (this.attacked.has(key)) return "invalid";
+
+        this.attacked.add(key);
+
+        const ship = this.board[x][y];
+
+        if (ship === null) {
+            this.missedAttacks.push([x, y]);
+            return "miss";
+            
+        } else {
+            ship.hit();
+            return "hit";
+        }
     }
 }

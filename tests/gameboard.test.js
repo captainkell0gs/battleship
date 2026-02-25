@@ -48,4 +48,46 @@ describe("gameboard", () => {
 
         expect(result).toBe(false)
     })
+
+    test("misses attack", () => {
+        const result = gameboard.receiveAttack(0, 0)
+
+        expect(result).toBe("miss")
+    })
+
+    test("hits ship", () => {
+        const ship = new Ship(3)
+        gameboard.placeShip(ship, 0, 0, 'horizontal')
+
+        const result = gameboard.receiveAttack(0, 0)
+
+        expect(result).toBe("hit")
+    })
+
+    test("rejects out of bounds attacks", () => {
+        const result = gameboard.receiveAttack(-1, -1)
+
+        expect(result).toBe("invalid")
+    })
+
+    test("prevents duplicate attacks on empty cells", () => {
+        const result1 = gameboard.receiveAttack(0, 0)
+        const result2 = gameboard.receiveAttack(0, 0)
+
+        expect(result1).toBe("miss");
+        expect(result2).toBe("invalid");
+        expect(gameboard.missedAttacks)
+    })
+
+    test("prevents duplicate attacks on ships", () => {
+        const ship = new Ship(3)
+        gameboard.placeShip(ship, 0, 0, "horizontal")
+
+        const result1 = gameboard.receiveAttack(0, 0)
+        const result2 = gameboard.receiveAttack(0, 0)
+
+        expect(result1).toBe("hit");
+        expect(result2).toBe("invalid");
+        expect(ship.hits).toBe(1);
+    })
 } )
