@@ -1,8 +1,7 @@
-import Ship from "./ship";
-
 export default class Gameboard {
-    constructor() {
-        this.board = Array(10).fill(null).map(() => Array(10).fill(null));
+    constructor(size = 10) {
+        this.size = size;
+        this.board = Array.from({ length: size }, () => Array(size).fill(null));
         this.ships = [];
         this.missedAttacks = [];
         this.attacked = new Set()
@@ -10,12 +9,12 @@ export default class Gameboard {
 
     placeShip(ship, x, y, direction) {
         if (
-            x < 0 || x > 9 || y < 0 || y > 9 || 
+            x < 0 || x >= this.size || y < 0 || y >= this.size || 
             !['horizontal', 'vertical'].includes(direction)
         ) return false;
 
         if (direction === 'horizontal') {
-            if (y + ship.length > 10) return false;
+            if (y + ship.length > this.size) return false;
 
             for (let i = 0; i < ship.length; i++) {
                 if (this.board[x][y + i] !== null) return false;
@@ -26,7 +25,7 @@ export default class Gameboard {
             }
 
         } else {
-            if (x + ship.length > 10) return false;
+            if (x + ship.length > this.size) return false;
 
             for (let i = 0; i < ship.length; i++) {
                 if (this.board[x + i][y] !== null) return false;
@@ -42,7 +41,7 @@ export default class Gameboard {
     }
 
     receiveAttack(x, y) {
-        if (x < 0 || x > 9 || y < 0 || y > 9) return "invalid";
+        if (x < 0 || x >= this.size || y < 0 || y >= this.size) return "invalid";
 
         const key = `${x}-${y}`;
     
@@ -60,6 +59,10 @@ export default class Gameboard {
             ship.hit();
             return "hit";
         }
+    }
+
+    isFull() {
+        return this.attacked.size >= this.size ** 2;
     }
 
     allShipsSunk() {

@@ -119,4 +119,33 @@ describe("gameboard", () => {
     test("returns false when no ships have been placed", () => {
         expect(gameboard.allShipsSunk()).toBe(false);
     })
+
+    test("returns true when board is fully attacked", () => {
+        const board = new Gameboard(2);
+
+        board.receiveAttack(0, 0);
+        board.receiveAttack(0, 1);
+        board.receiveAttack(1, 0);
+        board.receiveAttack(1, 1);
+
+        expect(board.isFull()).toBe(true);
+    })
+
+    test("returns false when board is not fully attacked", () => {
+        const board = new Gameboard(2);
+
+        board.receiveAttack(0, 0);
+        board.receiveAttack(0, 1);
+
+        expect(board.isFull()).toBe(false);
+    })
+
+    test("duplicate attacks do not affect fullness", () => {
+        const board = new Gameboard(2);
+
+        board.receiveAttack(0, 0);
+        board.receiveAttack(0, 0);
+
+        expect(board.isFull()).toBe(false);
+    })
 } )
