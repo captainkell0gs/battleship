@@ -1,4 +1,4 @@
-import Ship from '../src/ship';
+import Ship from '../src/modules/ship';
 
 describe('ship', () => {
     let ship;
