@@ -1,15 +1,19 @@
 import Player from "./player";
+import Ship from "./ship";
 
 export default class GameController {
     constructor() {
-        this.human = new Player("Human");
-        this.computer = new Player("Computer");
+        this.human = new Player();
+        this.computer = new Player();
         this.currentPlayer = this.human;
         this.gameOver = false;
+        this.fleet = [5, 4, 3, 3, 2];
+        this.humanShipsPlaced = 0;
+        this.phase = "placement";
     }
 
     playTurn(x, y) {
-        if (this.gameOver) return;
+        if (this.phase !== "battle" || this.gameOver) return;
 
         let result;
 
@@ -37,5 +41,39 @@ export default class GameController {
         }
 
         return result;
+    }
+
+    placeHumanShip(x, y, direction) {
+        if (this.humanShipsPlaced >= this.fleet.length) return false;
+
+        const length = this.fleet[this.humanShipsPlaced];
+        const ship = new Ship(length);
+
+        const placed = this.human.gameboard.placeShip(ship, x, y, direction);
+
+        if (placed) {
+            this.humanShipsPlaced++;
+
+            if (this.humanShipsPlaced === this.fleet.length) {
+            this.phase = "battle";
+            }
+        }
+
+        return placed;
+    }
+
+    placeComputerShips() {
+        this.fleet.forEach(length => {
+            let placed = false;
+
+            while (!placed) {
+                const ship = new Ship(length);
+                const x = Math.floor(Math.random() * this.computer.gameboard.size);
+                const y = Math.floor(Math.random() * this.computer.gameboard.size);
+                const direction = Math.random() < 0.5 ? "horizontal" : "vertical";
+
+                placed = this.computer.gameboard.placeShip(ship, x, y, direction);
+            }
+        })
     }
 }
