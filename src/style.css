@@ -6,7 +6,7 @@
 }
 
 body {
-    background: #ffffff;
+    background: #fefefe;
     color: #111;
     display: flex;
     justify-content: center;
@@ -45,9 +45,16 @@ h1 {
 }
 
 .status {
-    margin-bottom: 25px;
+    margin-bottom: 15px;
     font-weight: 500;
     color: #444;
+}
+
+.ship-count {
+    font-size: 0.95rem;
+    margin-bottom: 25px;
+    color: #666;
+    transition: opacity 0.3s ease;
 }
 
 .boards {
@@ -79,10 +86,15 @@ h1 {
 .cell {
     width: 35px;
     height: 35px;
-    border: 1px solid #a8a8a8;
+    border: 1px solid #b5b4b4;
     background: #fff;
-    transition: background 0.15s ease;
+    transition: background 0.2s ease, transform 0.1s ease;
     cursor: pointer;
+    position: relative;
+}
+
+.cell:active {
+    transform: scale(0.95);
 }
 
 .cell:hover {
@@ -90,23 +102,54 @@ h1 {
 }
 
 .ship {
-    background: #e5e5e5;
+    background: #d6ecdc;
 }
 
 .hit {
-    background: #000;
+    background: repeating-linear-gradient(
+        45deg,
+        #fa8989,
+        #fe7f7f 4px,
+        #fff 4px,
+        #fff 8px
+    );
 }
 
 .miss {
-    background: #cfcfcf;
+    background: radial-gradient(circle, #9e9e9e 30%, #fff 31%);
+}
+
+.sunk {
+    background: #f57171;
 }
 
 .preview-valid {
-    background: #dcdcdc;
+    background: rgba(0, 0, 0, 0.1);
 }
 
 .preview-invalid {
-    background: #f5c6c6;
+    background: rgba(255, 0, 0, 0.2);
+}
+
+.status-message {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #111;
+    color: #fff;
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-weight: 500;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 100;
+}
+
+.status-message.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
 }
 
 .game-over-overlay {
@@ -120,6 +163,14 @@ h1 {
     font-size: 2rem;
     color: #111;
     z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+.game-over-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .game-over-overlay button {

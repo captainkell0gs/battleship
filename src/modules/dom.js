@@ -13,6 +13,16 @@ export default class Dom {
             rotateBtn: document.getElementById("rotate-btn"),
             restartBtn: document.getElementById("restart-btn")
         };
+
+        this.humanShipCountEl = document.createElement("div");
+        this.humanShipCountEl.classList.add("ship-count");
+        this.humanShipCountEl.textContent = `Your ships: ${this.controller.fleet.length}`;
+        this.elements.humanBoardEl.parentElement.prepend(this.humanShipCountEl);
+
+        this.computerShipCountEl = document.createElement("div");
+        this.computerShipCountEl.classList.add("ship-count");
+        this.computerShipCountEl.textContent = `Computer ships: ${this.controller.fleet.length}`;
+        this.elements.computerBoardEl.parentElement.prepend(this.computerShipCountEl);
     }
 
     init() {
@@ -20,6 +30,13 @@ export default class Dom {
         this.renderBoards();
         this.attachEvents();
         this.updateStatus("Place your ships");
+    }
+
+    updateShipCount() {
+        const humanSunk = this.controller.human.gameboard.ships.filter(s => s.isSunk()).length;
+        const computerSunk = this.controller.computer.gameboard.ships.filter(s => s.isSunk()).length;
+        this.humanShipCountEl.textContent = `Your ships: ${this.controller.fleet.length - humanSunk}`;
+        this.computerShipCountEl.textContent = `Computer ships: ${this.controller.fleet.length - computerSunk}`;
     }
 
     renderBoards() {
@@ -34,6 +51,11 @@ export default class Dom {
             this.elements.computerBoardEl,
             true
         );
+    }
+
+    refreshUI() {
+        this.renderBoards();
+        this.updateShipCount();
     }
 
     renderBoard(board, container, hideShips) {
@@ -56,8 +78,14 @@ export default class Dom {
                     cell.classList.add("miss");
                 }
 
-                if (square && square.hit) {
-                    cell.classList.add("hit");
+                if (square) {
+                    if (square.hit) {
+                        if (square.ship.isSunk()) {
+                            cell.classList.add("sunk");
+                        } else {
+                            cell.classList.add("hit");
+                        }
+                    }
                 }
 
                 container.appendChild(cell);
@@ -111,61 +139,65 @@ export default class Dom {
 
     handlePlacement(x, y) {
         const placed = this.controller.placeHumanShip(x, y, this.currentDirection);
+        if (!placed) return this.showMessage("Invalid placement!");
 
-        if (!placed) {
-            this.updateStatus("Invalid placement");
-            return;
-        }
-
-        this.renderBoards();
+        this.refreshUI();
 
         if (this.controller.phase === "battle") {
-            this.updateStatus("Battle started! Your turn.");
-        }else {
-            const nextShip = this.controller.fleet[this.controller.humanShipsPlaced];
-            this.updateStatus(`Place ship of length ${nextShip}`);
+                this.updateStatus("Your turn.");
+                return;
         }
+
+        const nextShip = this.controller.fleet[this.controller.humanShipsPlaced];
+        this.updateStatus(`Place ship of length ${nextShip}`);
     }
 
     handleBattle(x, y) {
-        const result = this.controller.playTurn(x, y);
+        const turnResult = this.controller.playTurn(x, y);
+        if (!turnResult ||turnResult === "invalid") return;
 
-        if (result === "invalid") return;
-
-        this.renderBoards();
+        this.refreshUI();
 
         if (this.controller.gameOver) {
-            this.showGameOver(result);
+            this.showGameOver("You win!");
             return;
         }
 
+        this.updateStatus("Computer's turn...");
+        this.elements.computerBoardEl.style.pointerEvents = "none";
+
         setTimeout(() => {
-            const compResult = this.controller.playTurn();
-            this.renderBoards();
+            this.controller.playTurn();
+            this.refreshUI();
 
             if (this.controller.gameOver) {
-                this.showGameOver(compResult);
+                this.showGameOver("Computer wins!");
+                return;
             }
-        }, 500);
+
+            this.elements.computerBoardEl.style.pointerEvents = "auto";
+
+            this.updateStatus("Your turn");
+        }, 1000);
     }
 
     showGameOver(message) {
-        const overlay = document.createElement("div");
-        overlay.classList.add("game-over-overlay");
-
-        overlay.innerHTML = `
-            <div>${message}</div>
-            <button id="play-again">Play Again</button>
-        `;
-
-        document.body.appendChild(overlay);
-
-        document
-            .getElementById("play-again")
-            .addEventListener("click", () => {
-                overlay.remove();
+        let overlay = document.querySelector(".game-over-overlay");
+        if (!overlay) {
+            overlay = document.createElement("div");
+            overlay.classList.add("game-over-overlay");
+            overlay.innerHTML = `
+                <div>${message}</div>
+                <button id="play-again">Play Again</button>
+            `;
+            document.body.appendChild(overlay);
+            document.getElementById("play-again").addEventListener("click", () => {
+                overlay.classList.remove("show");
                 this.restartGame();
             });
+        }
+        overlay.querySelector("div").textContent = message;
+        overlay.classList.add("show");
     }
 
     attachEvents() {
@@ -218,11 +250,10 @@ export default class Dom {
     }
 
     toggleDirection() {
-        if (this.currentDirection === "horizontal") {
-            this.currentDirection = "vertical";
-        } else {
-            this.currentDirection = "horizontal";
-        }
+        this.currentDirection = 
+            this.currentDirection === "horizontal"
+                ? "vertical" 
+                : "horizontal";
     }
 
     restartGame() {
@@ -230,7 +261,7 @@ export default class Dom {
         this.controller.placeComputerShips();
         this.currentDirection = "horizontal";
         this.elements.rotateBtn.textContent = "Rotate";
-        this.renderBoards();
         this.updateStatus("place your ships");
+        this.refreshUI();
     }
 }
