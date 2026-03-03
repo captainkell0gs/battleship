@@ -13,7 +13,7 @@ export default class GameController {
     }
 
     playTurn(x, y) {
-        if (this.phase !== "battle" || this.gameOver) return;
+        if (this.phase !== "battle" || this.gameOver) return "invalid";
 
         let result;
 

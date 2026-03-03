@@ -16,7 +16,7 @@ describe("GameController", () => {
 
     test("does not allow playTurn in placement", () => {
         const result = gameController.playTurn(0, 0);
-        expect(result).toBeUndefined();
+        expect(result).toBe("invalid");
         expect(gameController.currentPlayer).toBe(gameController.human);
     });
 
