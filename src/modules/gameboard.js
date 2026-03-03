@@ -21,7 +21,10 @@ export default class Gameboard {
             }
 
             for (let i = 0; i < ship.length; i++) {
-                this.board[x][y + i] = ship;
+                this.board[x][y + i] = {
+                    ship, 
+                    hit: false
+                }
             }
 
         } else {
@@ -32,7 +35,10 @@ export default class Gameboard {
             }
 
             for (let i = 0; i < ship.length; i++) {
-                this.board[x + i][y] = ship;
+                this.board[x + i][y] = {
+                    ship, 
+                    hit: false
+                }
             }
         }
 
@@ -49,14 +55,14 @@ export default class Gameboard {
 
         this.attacked.add(key);
 
-        const ship = this.board[x][y];
+        const cell = this.board[x][y];
 
-        if (ship === null) {
+        if (cell === null) {
             this.missedAttacks.push([x, y]);
             return "miss";
-            
         } else {
-            ship.hit();
+            cell.hit = true;
+            cell.ship.hit();
             return "hit";
         }
     }

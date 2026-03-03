@@ -16,20 +16,29 @@ describe("gameboard", () => {
     })
 
     test("place ship horizontally", () => {
-        const ship = new Ship(3)
+        const ship = new Ship(2)
         gameboard.placeShip(ship, 0, 0, 'horizontal')
 
-        expect(gameboard.board[0][0]).toEqual(ship)
-        expect(gameboard.board[0][1]).toEqual(ship)
-        expect(gameboard.board[0][2]).toEqual(ship)
+        expect(gameboard.board[0][0].ship).toBe(ship);
+        expect(gameboard.board[0][0].hit).toBe(false);
+
+        expect(gameboard.board[0][1].ship).toBe(ship);
+        expect(gameboard.board[0][1].hit).toBe(false);
     })
 
     test("place ship vertically", () => {
         const ship = new Ship(2)
         gameboard.placeShip(ship, 0, 0, 'vertical')
 
-        expect(gameboard.board[0][0]).toEqual(ship)
-        expect(gameboard.board[1][0]).toEqual(ship)
+        expect(gameboard.board[0][0]).toEqual({
+            ship,
+            hit: false
+        })
+
+        expect(gameboard.board[1][0]).toEqual({
+            ship,
+            hit: false
+        })
     })
 
     test("does not place ship out of bounds horizontally", () => {
