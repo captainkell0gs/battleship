@@ -1,42 +1,79 @@
 import Player from "../src/modules/player";
 import Gameboard from "../src/modules/gameboard";
+import Ship from "../src/modules/ship";
 
 describe("Player", () => {
-    let player; 
 
-    beforeEach(() => {
-        player = new Player();
+    test("creates a human player with a gameboard", () => {
+        const player = new Player();
+
+        expect(player.gameboard).toBeDefined();
+        expect(player.gameboard.size).toBe(10);
     })
 
-    test("creates a player with a gameboard", () => {
-        expect(player.gameboard).toBeInstanceOf(Gameboard);
+    test("AI starts in hunt mode", () => {
+        const ai = new Player(true);
+        expect(ai.mode).toBe("hunt");
     })
 
-    test("makeRandomMove attacks the enemy board", () => {
-        const enemyBoard = new Gameboard(2);
-        
-        const result = player.makeRandomMove(enemyBoard);
+    test("AI switches to target mode after a hit", () => {
+        const ai = new Player();
+        const board = new Gameboard();
 
-        expect(["hit", "miss"]).toContain(result);
-        expect(enemyBoard.attacked.size).toBe(1);
+        const ship = new Ship(2);
+        board.placeShip(ship, 0, 0, "horizontal");
+
+        jest.spyOn(Math, "random")
+            .mockReturnValueOnce(0)
+            .mockReturnValueOnce(0); 
+
+        ai.makeMove(board);
+
+        expect(ai.mode).toBe("target");
+
+        Math.random.mockRestore();
     })
 
-    test("makeRandomMove does not attack the same cell twice", () => {
-        const enemyBoard = new Gameboard(1);
-        
-        player.makeRandomMove(enemyBoard);
-        player.makeRandomMove(enemyBoard);
+    test("AI detects horizontal direction", () => {
+        const ai = new Player();
 
-        expect(enemyBoard.attacked.size).toBe(1);
+        ai.lastHits = [
+            [4, 5],
+            [4, 6]
+        ];
+
+        ai.detectDirection();
+
+        expect(ai.lockedDirection).toBe("horizontal");
     })
 
-    test("makeRandomMove returns null if the board is full", () => {
-        const enemyBoard = new Gameboard(1);
+    test("AI detects vertical direction", () => {
+        const ai = new Player();
 
-        enemyBoard.receiveAttack(0, 0);
+        ai.lastHits = [
+            [4, 5],
+            [5, 5]
+        ];
 
-        const result = player.makeRandomMove(enemyBoard);
+        ai.detectDirection();
 
-        expect(result).toBe(null);
+        expect(ai.lockedDirection).toBe("vertical");
+    });
+
+    test("resetTargeting resets AI state", () => {
+        const ai = new Player();
+
+        ai.mode = "target"
+        ai.targetQueue = [1, 1]
+        ai.lastHits = [2, 2]
+        ai.lockedDirection = "horizontal"
+
+        ai.resetTargeting()
+
+        expect(ai.mode).toBe("hunt")
+        expect(ai.targetQueue).toEqual([])
+        expect(ai.lastHits).toEqual([])
+        expect(ai.lockedDirection).toBeNull()
     })
+
 })
