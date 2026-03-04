@@ -61,7 +61,11 @@ describe("gameboard", () => {
     test("misses attack", () => {
         const result = gameboard.receiveAttack(0, 0)
 
-        expect(result).toBe("miss")
+        expect(result).toEqual({
+            valid: true,
+            hit: false,
+            ship: null
+        })
     })
 
     test("hits ship", () => {
@@ -70,21 +74,24 @@ describe("gameboard", () => {
 
         const result = gameboard.receiveAttack(0, 0)
 
-        expect(result).toBe("hit")
+        expect(result.hit).toBe(true)
     })
 
     test("rejects out of bounds attacks", () => {
         const result = gameboard.receiveAttack(-1, -1)
 
-        expect(result).toBe("invalid")
+        expect(result).toEqual({
+            valid: false,
+        })
+
     })
 
     test("prevents duplicate attacks on empty cells", () => {
         const result1 = gameboard.receiveAttack(0, 0)
         const result2 = gameboard.receiveAttack(0, 0)
 
-        expect(result1).toBe("miss");
-        expect(result2).toBe("invalid");
+        expect(result1.hit).toBe(false);
+        expect(result2.valid).toBe(false);
         expect(gameboard.missedAttacks)
     })
 
@@ -95,8 +102,8 @@ describe("gameboard", () => {
         const result1 = gameboard.receiveAttack(0, 0)
         const result2 = gameboard.receiveAttack(0, 0)
 
-        expect(result1).toBe("hit");
-        expect(result2).toBe("invalid");
+        expect(result1.hit).toBe(true);
+        expect(result2.valid).toBe(false);
         expect(ship.hits).toBe(1);
     })
 

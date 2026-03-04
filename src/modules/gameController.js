@@ -13,34 +13,41 @@ export default class GameController {
     }
 
     playTurn(x, y) {
-        if (this.phase !== "battle" || this.gameOver) return "invalid";
+        if (this.phase !== "battle" || this.gameOver) {
+            return { valid: false };
+        }
 
-        let result;
+        let attackResult;
+        let winner  = null
 
         if (this.currentPlayer === this.human) {
-            result = this.computer.gameboard.receiveAttack(x, y);
+            attackResult = this.computer.gameboard.receiveAttack(x, y);
 
-            if (result === "invalid") return "invalid";
+            if (!attackResult.valid) return { valid: false };
 
             if (this.computer.gameboard.allShipsSunk()) {
                 this.gameOver = true;
-                return "Human wins!";
+                winner =  "human";
             }
 
             this.currentPlayer = this.computer;
 
         } else {
-            result = this.computer.makeRandomMove(this.human.gameboard);
+            attackResult = this.computer.makeMove(this.human.gameboard);
 
             if (this.human.gameboard.allShipsSunk()) {
                 this.gameOver = true;
-                return "Computer wins!";
+                winner = "computer";
             }
 
             this.currentPlayer = this.human;
         }
 
-        return result;
+        return {
+            valid: true, 
+            hit: attackResult.hit,
+            winner
+        }
     }
 
     placeHumanShip(x, y, direction) {

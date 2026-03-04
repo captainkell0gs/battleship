@@ -16,7 +16,7 @@ describe("GameController", () => {
 
     test("does not allow playTurn in placement", () => {
         const result = gameController.playTurn(0, 0);
-        expect(result).toBe("invalid");
+        expect(result.valid).toBe(false);
         expect(gameController.currentPlayer).toBe(gameController.human);
     });
 
@@ -34,7 +34,7 @@ describe("GameController", () => {
         gameController.phase = "battle";
 
         const result = gameController.playTurn(10, 10);
-        expect(result).toBe("invalid");
+        expect(result.valid).toBe(false);
         expect(gameController.currentPlayer).toBe(gameController.human);
     });
 
@@ -57,7 +57,7 @@ describe("GameController", () => {
         gameController.human.gameboard.placeShip(ship, 0, 0, "horizontal");
         gameController.currentPlayer = gameController.computer;
 
-        jest.spyOn(gameController.computer, "makeRandomMove")
+        jest.spyOn(gameController.computer, "makeMove")
         .mockImplementation(() => {
             gameController.human.gameboard.receiveAttack(0, 0);
             return "hit";

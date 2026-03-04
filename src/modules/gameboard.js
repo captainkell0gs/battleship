@@ -47,11 +47,15 @@ export default class Gameboard {
     }
 
     receiveAttack(x, y) {
-        if (x < 0 || x >= this.size || y < 0 || y >= this.size) return "invalid";
+        if (x < 0 || x >= this.size || y < 0 || y >= this.size) {
+            return { valid: false };
+        }
 
         const key = `${x}-${y}`;
     
-        if (this.attacked.has(key)) return "invalid";
+        if (this.attacked.has(key)) {
+            return { valid: false };
+        }
 
         this.attacked.add(key);
 
@@ -59,12 +63,21 @@ export default class Gameboard {
 
         if (cell === null) {
             this.missedAttacks.push([x, y]);
-            return "miss";
-        } else {
-            cell.hit = true;
-            cell.ship.hit();
-            return "hit";
-        }
+            return {
+                valid: true,
+                hit: false, 
+                ship: null
+            }
+        } 
+
+        cell.hit = true;
+        cell.ship.hit();
+        
+        return {
+            valid: true,
+            hit: true,
+            ship: cell.ship
+        };
     }
 
     isFull() {

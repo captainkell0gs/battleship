@@ -153,8 +153,8 @@ export default class Dom {
     }
 
     handleBattle(x, y) {
-        const turnResult = this.controller.playTurn(x, y);
-        if (!turnResult ||turnResult === "invalid") return;
+        const result = this.controller.playTurn(x, y);
+        if (!result || !result.valid) return;
 
         this.refreshUI();
 
